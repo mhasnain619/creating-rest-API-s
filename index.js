@@ -1,8 +1,13 @@
 const express = require("express")
 const users = require("./MOCK_DATA.json")
+const fs = require("fs")
 const app = express()
 const PORT = 8000
 
+
+//Middleware  //Plugin
+app.use(express.urlencoded({ extended: false }));
+// app.use(express.json());
 //ROUTES
 app.get('/users', (req, res) => {
 
@@ -31,11 +36,11 @@ app.route('/api/users/:id').get(
     })
     .patch((req, res) => {
         // Edit users by id 
-        return res.json({ status: pending })
+        return res.json({ status: "pending" })
     })
     .delete((req, res) => {
         // Delete users by id 
-        return res.json({ status: pending })
+        return res.json({ status: "pending" })
     })
 
 
@@ -43,7 +48,14 @@ app.route('/api/users/:id').get(
 
 app.post('/api/users', (req, res) => {
     //Todo Create new user
-    return res.send({ status: pending })
+    const body = req.body;
+    const newUser = { ...body, id: users.length + 1 }
+    users.push(newUser)
+    fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
+        return res.send({ status: "success", id: users.length + 1 })
+
+    })
+
 })
 
 
@@ -61,14 +73,14 @@ app.post('/api/users', (req, res) => {
 
 // app.patch('/api/users/:id', (req, res) => {
 //     //Todo Edit new user with id
-//     return res.send({ status: pending })
+//     return res.send({ status: "pending" })
 // })
 
 //Delete User
 
 // app.delete('/api/users/:id', (req, res) => {
 //     //Todo delete new user with id
-//     return res.send({ status: pending })
+//     return res.send({ status: "pending" })
 // })
 
 app.listen(PORT, () => console.log(`Server Startwd at PORT:${PORT}`));

@@ -798,5 +798,13 @@
         "email": "ttonks2r@arizona.edu",
         "gender": "Genderfluid",
         "job_title": "Nuclear Power Engineer"
+    },
+    {
+        "first_name": "hasnain",
+        "last_name": "tay",
+        "email": "has@gmail.com",
+        "gender": "male",
+        "job_title": "web developer",
+        "id": 101
     }
 ]
