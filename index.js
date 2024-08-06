@@ -36,7 +36,21 @@ app.route('/api/users/:id').get(
     })
     .patch((req, res) => {
         // Edit users by id 
-        return res.json({ status: "pending" })
+        const id = Number(req.params.id)
+        const index = users.findIndex(user => user.id === id)
+        if (index !== -1) {
+
+            users[index] = { ...users[index], ...req.body }
+            fs.writeFile("./MOCK_DATA.json", JSON.stringify(users, null, 2), (err) => {
+                if (err) {
+                    return res.status(500).json({ error: "Failed to update User" })
+                }
+                return res.json({ status: "Success", user: users[index] })
+            })
+        } else {
+            res.status(404).json({ error: "User not found" });
+
+        }
     })
     .delete((req, res) => {
         // Delete users by id 
