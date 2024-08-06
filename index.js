@@ -41,6 +41,7 @@ app.route('/api/users/:id').get(
     (req, res) => {
         const id = Number(req.params.id)
         const user = users.find((user) => user.id === id)
+        if (!user) return res.status(404).json({ error: "User not found" })
         res.json(user)
     })
     .patch((req, res) => {
@@ -86,13 +87,16 @@ app.route('/api/users/:id').get(
 app.post('/api/users', (req, res) => {
     //Todo Create new user
     const body = req.body;
+    if (!body || !body.first_name || !body.last_name || !body.email || !body.gender || !body.job_title) {
+        return res.status(400).json({ msg: "all fields are require" })
+    }
     const newUser = { ...body, id: users.length + 1 }
     users.push(newUser)
     fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
         if (err) {
             return res.status(500).json({ error: "Failed to create user" })
         }
-        return res.send({ status: "success", id: users.length + 1 })
+        return res.status(201).send({ status: "success", id: users.length + 1 })
 
     })
 
