@@ -7,7 +7,14 @@ const PORT = 8000
 
 //Middleware  //Plugin
 app.use(express.urlencoded({ extended: false }));
-// app.use(express.json());
+
+app.use((req, res, next) => {
+    console.log("Hello from middlewer 1");
+    fs.appendFile('log.txt', `${Date.now()} : ${req.method}: ${req.path}\n`, (err, date) => {
+        next()
+    })
+})
+
 //ROUTES
 app.get('/users', (req, res) => {
 
