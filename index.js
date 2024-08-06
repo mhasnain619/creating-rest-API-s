@@ -32,6 +32,8 @@ app.get('/users', (req, res) => {
 // Getting all users
 
 app.get('/api/users', (req, res) => {
+    //Always add X on custom headers
+    // res.setHeader('x-myName', 'Anaintay') // custom headers
     return res.json(users)
 })
 
