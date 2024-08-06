@@ -54,7 +54,21 @@ app.route('/api/users/:id').get(
     })
     .delete((req, res) => {
         // Delete users by id 
-        return res.json({ status: "pending" })
+        const id = Number(req.params.id)
+        const index = users.findIndex(user => user.id === id)
+        if (index !== -1) {
+            const deleteUser = users.splice(index, 1);
+            fs.writeFile("./MOCK_DATA.json", JSON.stringify(users, null, 2), (err) => {
+                if (err) {
+                    return res.status(500).json({ error: "Failed to delete user" });
+
+                }
+                return res.json({ status: "Succesfully Deleted", user: deleteUser[0] })
+
+            })
+        } else {
+            res.status(404).json({ error: "User not found" });
+        }
     })
 
 
@@ -66,6 +80,9 @@ app.post('/api/users', (req, res) => {
     const newUser = { ...body, id: users.length + 1 }
     users.push(newUser)
     fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: "Failed to create user" })
+        }
         return res.send({ status: "success", id: users.length + 1 })
 
     })

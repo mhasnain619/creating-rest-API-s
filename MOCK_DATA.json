@@ -792,12 +792,12 @@
     "job_title": "Programmer II"
   },
   {
-    "id": 100,
-    "first_name": "Twila",
-    "last_name": "Tonks",
-    "email": "ttonks2r@arizona.edu",
-    "gender": "Genderfluid",
-    "job_title": "Nuclear Power Engineer"
+    "first_name": "hasnain",
+    "last_name": "tay",
+    "email": "has@gmail.com",
+    "gender": "male",
+    "job_title": "web developer",
+    "id": 101
   },
   {
     "first_name": "hasnain",
@@ -805,6 +805,6 @@
     "email": "has@gmail.com",
     "gender": "male",
     "job_title": "web developer",
-    "id": 101
+    "id": 102
   }
 ]
