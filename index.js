@@ -1,8 +1,42 @@
 const express = require("express")
-const users = require("./MOCK_DATA.json")
+// const users = require("./MOCK_DATA.json")
+const mongoose = require('mongoose')
 const fs = require("fs")
+const { type } = require("os")
 const app = express()
 const PORT = 8000
+
+//Connection
+
+mongoose
+    .connect('mongodb://127.0.0.1:27017/youtube-app-2')
+    .then(() => console.log('Mongodb Connected'))
+    .catch(err => console.log('Mongodb Connection Error', err))
+// Schema
+
+const userSchema = new mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true
+    },
+    lastName: {
+        type: String,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    jobTitlt: {
+        type: String,
+    },
+    gender: {
+        type: String,
+    },
+}, { timeseries: true }
+)
+
+const User = mongoose.model('user', userSchema)
 
 
 //Middleware  //Plugin
@@ -16,12 +50,14 @@ app.use((req, res, next) => {
 })
 
 //ROUTES
-app.get('/users', (req, res) => {
+app.get('/users', async (req, res) => {
+
+    const allDbUsers = await User.find({})
 
     const html = `
     <ul>
     
-    ${users.map(user => `<li>${user.first_name}</li>`).join("")}
+    ${allDbUsers.map(user => `<li>${user.firstName} - ${user.email}</li>`).join("")}
     
     </ul>`;
     res.send(html)
@@ -31,16 +67,17 @@ app.get('/users', (req, res) => {
 //Rest Api
 // Getting all users
 
-app.get('/api/users', (req, res) => {
+app.get('/api/users', async (req, res) => {
+    const allDbUsers = await User.find({})
+
     //Always add X on custom headers
     // res.setHeader('x-myName', 'Anaintay') // custom headers
-    return res.json(users)
+    return res.json(allDbUsers)
 })
 
-app.route('/api/users/:id').get(
-    (req, res) => {
-        const id = Number(req.params.id)
-        const user = users.find((user) => user.id === id)
+app.route('/api/users/:id')
+    .get(async (req, res) => {
+        const user = await User.findById(req.params.id)
         if (!user) return res.status(404).json({ error: "User not found" })
         res.json(user)
     })
@@ -62,44 +99,45 @@ app.route('/api/users/:id').get(
 
         }
     })
-    .delete((req, res) => {
+    .delete(async (req, res) => {
+        await User.findByIdAndDelete(req.params.id)
+        return res.json({ status: " Success" })
         // Delete users by id 
-        const id = Number(req.params.id)
-        const index = users.findIndex(user => user.id === id)
-        if (index !== -1) {
-            const deleteUser = users.splice(index, 1);
-            fs.writeFile("./MOCK_DATA.json", JSON.stringify(users, null, 2), (err) => {
-                if (err) {
-                    return res.status(500).json({ error: "Failed to delete user" });
+        // const id = Number(req.params.id)
+        // const index = users.findIndex(user => user.id === id)
+        // if (index !== -1) {
+        //     const deleteUser = users.splice(index, 1);
+        //     fs.writeFile("./MOCK_DATA.json", JSON.stringify(users, null, 2), (err) => {
+        //         if (err) {
+        //             return res.status(500).json({ error: "Failed to delete user" });
 
-                }
-                return res.json({ status: "Succesfully Deleted", user: deleteUser[0] })
+        //         }
+        //         return res.json({ status: "Succesfully Deleted", user: deleteUser[0] })
 
-            })
-        } else {
-            res.status(404).json({ error: "User not found" });
-        }
+        //     })
+        // } else {
+        //     res.status(404).json({ error: "User not found" });
+        // }
     })
 
 
 // Creating user
 
-app.post('/api/users', (req, res) => {
+app.post('/api/users', async (req, res) => {
     //Todo Create new user
     const body = req.body;
     if (!body || !body.first_name || !body.last_name || !body.email || !body.gender || !body.job_title) {
         return res.status(400).json({ msg: "all fields are require" })
     }
-    const newUser = { ...body, id: users.length + 1 }
-    users.push(newUser)
-    fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err, data) => {
-        if (err) {
-            return res.status(500).json({ error: "Failed to create user" })
-        }
-        return res.status(201).send({ status: "success", id: users.length + 1 })
-
+    const result = await User.create({
+        firstName: body.first_name,
+        lastName: body.last_name,
+        email: body.email,
+        gender: body.gender,
+        jobTitle: body.job_title
     })
 
+    return res.status(201).json({ msg: "Success" })
 })
 
 
